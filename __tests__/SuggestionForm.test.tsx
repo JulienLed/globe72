@@ -26,7 +26,7 @@ const mockCategories = [
 ];
 
 const mockInventoryItems = [
-  { id: 10, name: "Grand bureau (3 parties)", category: "Mobilier de bureau", quantity: 1, photoUrl: null, notes: null },
+  { id: 10, name: "Grand bureau (3 parties)", category: "Mobilier de bureau", quantity: 5, photoUrl: null, notes: null },
   { id: 11, name: "Fauteuils de bureau", category: "Mobilier de bureau", quantity: 3, photoUrl: null, notes: null },
 ];
 

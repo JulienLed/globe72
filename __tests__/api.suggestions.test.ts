@@ -115,7 +115,7 @@ describe("GET /api/suggestions", () => {
     const json = await res.json();
 
     expect(res.status).toBe(200);
-    expect(json).toHaveLength(2);
+    expect(json.suggestions).toHaveLength(2);
     expect(prisma.suggestion.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: {} })
     );
@@ -129,7 +129,7 @@ describe("GET /api/suggestions", () => {
     const json = await res.json();
 
     expect(res.status).toBe(200);
-    expect(json).toHaveLength(1);
+    expect(json.suggestions).toHaveLength(1);
     expect(prisma.suggestion.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { roomId: 1 } })
     );
@@ -157,6 +157,25 @@ describe("GET /api/suggestions", () => {
     expect(prisma.suggestion.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { roomId: 1, needCategoryId: 2 } })
     );
+  });
+
+  it("calcule le stock consommé (stockTaken) par inventoryItemId", async () => {
+    const stockSuggestions = [
+      { ...createdSuggestion, id: 1, inventoryItemId: 10, quantity: 2 },
+      { ...createdSuggestion, id: 2, inventoryItemId: 10, quantity: 1 }, // même item → total 3
+      { ...createdSuggestion, id: 3, inventoryItemId: 11, quantity: 3 },
+      { ...createdSuggestion, id: 4, inventoryItemId: null, ikeaUrl: "https://ikea.com/p/123", quantity: 1 }, // pas comptabilisé
+    ];
+    vi.mocked(prisma.suggestion.findMany).mockResolvedValue(stockSuggestions as never);
+
+    const req = makeRequest("GET", "http://localhost/api/suggestions");
+    const res = await GET(req);
+    const json = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(json.stockTaken["10"]).toBe(3); // 2 + 1
+    expect(json.stockTaken["11"]).toBe(3);
+    expect(json.stockTaken["null"]).toBeUndefined(); // suggestions IKEA ignorées
   });
 });
 

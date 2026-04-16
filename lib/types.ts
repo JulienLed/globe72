@@ -5,6 +5,7 @@ export interface SuggestionFull {
   inventoryItemId: number | null;
   ikeaUrl: string | null;
   ikeaLabel: string | null;
+  supplierName: string | null;
   suggestedBy: string;
   quantity: number;
   comment: string | null;

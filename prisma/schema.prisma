@@ -42,6 +42,7 @@ model Suggestion {
   inventoryItemId Int?
   ikeaUrl         String?
   ikeaLabel       String?
+  supplierName    String?
   suggestedBy     String
   quantity        Int            @default(1)
   comment         String?
