@@ -1,0 +1,49 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Room {
+  id          Int          @id @default(autoincrement())
+  name        String
+  dimensions  String
+  suggestions Suggestion[]
+}
+
+model NeedCategory {
+  id          Int          @id @default(autoincrement())
+  name        String
+  emoji       String
+  suggestions Suggestion[]
+}
+
+model InventoryItem {
+  id          Int          @id @default(autoincrement())
+  name        String
+  category    String
+  quantity    Int
+  photoUrl    String?
+  notes       String?
+  suggestions Suggestion[]
+}
+
+model Suggestion {
+  id              Int            @id @default(autoincrement())
+  room            Room           @relation(fields: [roomId], references: [id])
+  roomId          Int
+  needCategory    NeedCategory   @relation(fields: [needCategoryId], references: [id])
+  needCategoryId  Int
+  inventoryItem   InventoryItem? @relation(fields: [inventoryItemId], references: [id])
+  inventoryItemId Int?
+  ikeaUrl         String?
+  ikeaLabel       String?
+  suggestedBy     String
+  quantity        Int            @default(1)
+  comment         String?
+  createdAt       DateTime       @default(now())
+}
