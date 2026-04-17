@@ -3,9 +3,24 @@
 import { useState } from "react";
 import Image from "next/image";
 
-interface Room          { id: number; name: string; dimensions: string; }
-interface Category      { id: number; name: string; emoji: string; }
-interface InventoryItem { id: number; name: string; category: string; quantity: number; photoUrl: string | null; notes: string | null; }
+interface Room {
+  id: number;
+  name: string;
+  dimensions: string;
+}
+interface Category {
+  id: number;
+  name: string;
+  emoji: string;
+}
+interface InventoryItem {
+  id: number;
+  name: string;
+  category: string;
+  quantity: number;
+  photoUrl: string | null;
+  notes: string | null;
+}
 
 interface SuggestionFormProps {
   rooms: Room[];
@@ -18,54 +33,62 @@ interface SuggestionFormProps {
   onSuccess?: () => void;
 }
 
-const IKEA_URL    = "https://www.ikea.com/be/fr/";
+const IKEA_URL = "https://www.ikea.com/be/fr/";
 const BRUNEAU_URL = "https://www.bruneau.be";
 
 // Mots-clés pour filtrer l'inventaire selon la catégorie de besoin sélectionnée.
 // La comparaison se fait sur item.name (insensible à la casse).
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
   "Mobilier de travail": ["bureau", "fauteuil", "chaise", "table"],
-  "Assise & accueil":    ["chaise", "fauteuil", "canapé"],
-  "Rangement":           ["armoire", "étagère", "tiroir", "meuble"],
-  "Décoration":          ["lampe", "plante", "miroir"],
-  "Communication":       ["imprimante", "plieuse", "plastifieuse", "trancheuse"],
+  "Assise & accueil": ["chaise", "fauteuil", "canapé"],
+  Rangement: ["armoire", "étagère", "tiroir", "meuble"],
+  Décoration: ["lampe", "plante", "miroir"],
+  Communication: ["imprimante", "plieuse", "plastifieuse", "trancheuse"],
 };
 
-function filterInventory(items: InventoryItem[], categoryName: string): InventoryItem[] {
+function filterInventory(
+  items: InventoryItem[],
+  categoryName: string,
+): InventoryItem[] {
   if (categoryName === "Autre") return items;
   const keywords = CATEGORY_KEYWORDS[categoryName];
   if (!keywords) return items;
   return items.filter((item) =>
-    keywords.some((kw) => item.name.toLowerCase().includes(kw))
+    keywords.some((kw) => item.name.toLowerCase().includes(kw)),
   );
 }
 
 export function SuggestionForm({
-  rooms, categories, inventoryItems, username, stockTaken = {}, onSuccess,
+  rooms,
+  categories,
+  inventoryItems,
+  username,
+  stockTaken = {},
+  onSuccess,
 }: SuggestionFormProps) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
 
   // Step 1
-  const [roomId,         setRoomId]         = useState<number | null>(null);
+  const [roomId, setRoomId] = useState<number | null>(null);
   const [needCategoryId, setNeedCategoryId] = useState<number | null>(null);
 
   // Step 2
   const [inventoryItemId, setInventoryItemId] = useState<number | null>(null);
-  const [supplier,        setSupplier]        = useState<"ikea" | "bruneau" | null>(null);
-  const [ikeaUrl,         setIkeaUrl]         = useState("");
-  const [ikeaLabel,       setIkeaLabel]       = useState("");
+  const [supplier, setSupplier] = useState<"ikea" | "bruneau" | null>(null);
+  const [ikeaUrl, setIkeaUrl] = useState("");
+  const [ikeaLabel, setIkeaLabel] = useState("");
   // String pour éviter le bug clear+"2" → "12" sur input contrôlé de type number
-  const [quantityStr,     setQuantityStr]     = useState("1");
+  const [quantityStr, setQuantityStr] = useState("1");
 
   // Step 3
-  const [comment,     setComment]     = useState("");
-  const [submitting,  setSubmitting]  = useState(false);
+  const [comment, setComment] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   // ── Dérivés ───────────────────────────────────────────────────────────────
-  const selectedRoom     = rooms.find((r) => r.id === roomId);
+  const selectedRoom = rooms.find((r) => r.id === roomId);
   const selectedCategory = categories.find((c) => c.id === needCategoryId);
-  const selectedItem     = inventoryItems.find((i) => i.id === inventoryItemId);
+  const selectedItem = inventoryItems.find((i) => i.id === inventoryItemId);
 
   // Remaining stock for the selected inventory item
   const selectedItemRemaining = selectedItem
@@ -133,12 +156,17 @@ export function SuggestionForm({
           roomId,
           needCategoryId,
           inventoryItemId: supplier ? null : inventoryItemId,
-          ikeaUrl:         supplier ? ikeaUrl  : null,
-          ikeaLabel:       supplier ? ikeaLabel : null,
-          supplierName:    supplier === "ikea" ? "IKEA" : supplier === "bruneau" ? "Bruneau.be" : null,
-          quantity:        quantityInt,
-          suggestedBy:     username,
-          comment:         comment || null,
+          ikeaUrl: supplier ? ikeaUrl : null,
+          ikeaLabel: supplier ? ikeaLabel : null,
+          supplierName:
+            supplier === "ikea"
+              ? "IKEA"
+              : supplier === "bruneau"
+                ? "Bruneau.be"
+                : null,
+          quantity: quantityInt,
+          suggestedBy: username,
+          comment: comment || null,
         }),
       });
       if (!res.ok) throw new Error(`Erreur serveur (${res.status})`);
@@ -216,7 +244,6 @@ export function SuggestionForm({
   if (step === 2) {
     return (
       <div className="flex flex-col gap-6 p-4">
-
         {/* ── Section inventaire ── */}
         <section>
           <h2 className="mb-3 text-lg font-semibold">
@@ -242,7 +269,9 @@ export function SuggestionForm({
                 return (
                   <div
                     key={item.id}
-                    onClick={outOfStock ? undefined : () => handleSelectItem(item.id)}
+                    onClick={
+                      outOfStock ? undefined : () => handleSelectItem(item.id)
+                    }
                     className={`rounded-xl border-2 p-3 transition-all ${
                       outOfStock
                         ? "cursor-not-allowed border-[#C8C8C8] opacity-40 grayscale"
@@ -286,7 +315,10 @@ export function SuggestionForm({
                     {!outOfStock && (
                       <button
                         type="button"
-                        onClick={(e) => { e.stopPropagation(); handleSelectItem(item.id); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSelectItem(item.id);
+                        }}
                         className={`mt-2 w-full rounded-lg py-1.5 text-xs font-medium transition-colors ${
                           selected
                             ? "bg-[#2B5BA8] text-white"
@@ -307,7 +339,8 @@ export function SuggestionForm({
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-[#C8C8C8]" />
           <p className="text-center text-sm text-gray-500">
-            Vous ne trouvez pas ce qu&apos;il vous faut ?<br />Commandez en ligne :
+            Vous ne trouvez pas ce qu&apos;il vous faut ?<br />
+            Recherchez chez ces fournisseurs :
           </p>
           <div className="h-px flex-1 bg-[#C8C8C8]" />
         </div>
@@ -315,7 +348,6 @@ export function SuggestionForm({
         {/* ── Section fournisseurs — cards côte à côte ── */}
         <section className="flex flex-col gap-3">
           <div className="grid grid-cols-2 gap-3">
-
             {/* IKEA */}
             <button
               type="button"
@@ -332,7 +364,9 @@ export function SuggestionForm({
                 <p className="font-semibold text-[#1A1A1A]">Choisir sur IKEA</p>
                 <p className="text-xs text-gray-500">Mobilier et accessoires</p>
                 {supplier === "ikea" && ikeaLabel && (
-                  <span className="mt-1 text-xs font-medium text-[#2B5BA8]">✓ {ikeaLabel}</span>
+                  <span className="mt-1 text-xs font-medium text-[#2B5BA8]">
+                    ✓ {ikeaLabel}
+                  </span>
                 )}
               </div>
             </button>
@@ -350,25 +384,33 @@ export function SuggestionForm({
             >
               <div className="flex flex-col items-start gap-1">
                 <span className="text-2xl">🏪</span>
-                <p className="font-semibold text-[#1A1A1A]">Choisir sur Bruneau.be</p>
-                <p className="text-xs text-gray-500">Fournitures de bureau et mobilier</p>
+                <p className="font-semibold text-[#1A1A1A]">
+                  Choisir sur Bruneau.be
+                </p>
+                <p className="text-xs text-gray-500">
+                  Fournitures de bureau et mobilier
+                </p>
                 {supplier === "bruneau" && ikeaLabel && (
-                  <span className="mt-1 text-xs font-medium text-[#2B5BA8]">✓ {ikeaLabel}</span>
+                  <span className="mt-1 text-xs font-medium text-[#2B5BA8]">
+                    ✓ {ikeaLabel}
+                  </span>
                 )}
               </div>
             </button>
-
           </div>
 
           {/* Formulaire étendu IKEA — pleine largeur sous les deux cards */}
           {supplier === "ikea" && (
             <div className="flex flex-col gap-3 rounded-xl border border-[#C8C8C8] bg-[#EEF4FC] p-4">
               <p className="text-xs text-gray-500">
-                Navigue sur IKEA, copie l&apos;URL du produit et colle-la ci-dessous.
+                Navigue sur IKEA, copie l&apos;URL du produit et colle-la
+                ci-dessous.
               </p>
               <button
                 type="button"
-                onClick={() => window.open(IKEA_URL, "_blank", "noopener,noreferrer")}
+                onClick={() =>
+                  window.open(IKEA_URL, "_blank", "noopener,noreferrer")
+                }
                 className="w-fit rounded-lg border border-[#5B9BD5] bg-white px-3 py-1.5 text-xs font-medium text-[#2B5BA8] hover:bg-[#EEF4FC]"
               >
                 🔗 Ouvrir IKEA dans un nouvel onglet
@@ -389,7 +431,8 @@ export function SuggestionForm({
               />
               {ikeaLabel.trim() && (
                 <p className="flex items-center gap-1.5 text-sm font-medium text-[#2B5BA8]">
-                  <span>✓</span><span>{ikeaLabel}</span>
+                  <span>✓</span>
+                  <span>{ikeaLabel}</span>
                 </p>
               )}
             </div>
@@ -399,11 +442,14 @@ export function SuggestionForm({
           {supplier === "bruneau" && (
             <div className="flex flex-col gap-3 rounded-xl border border-[#C8C8C8] bg-[#EEF4FC] p-4">
               <p className="text-xs text-gray-500">
-                Navigue sur Bruneau.be, copie l&apos;URL du produit et colle-la ci-dessous.
+                Navigue sur Bruneau.be, copie l&apos;URL du produit et colle-la
+                ci-dessous.
               </p>
               <button
                 type="button"
-                onClick={() => window.open(BRUNEAU_URL, "_blank", "noopener,noreferrer")}
+                onClick={() =>
+                  window.open(BRUNEAU_URL, "_blank", "noopener,noreferrer")
+                }
                 className="w-fit rounded-lg border border-[#2B5BA8] bg-white px-3 py-1.5 text-xs font-medium text-[#2B5BA8] hover:bg-[#EEF4FC]"
               >
                 🔗 Ouvrir Bruneau.be dans un nouvel onglet
@@ -424,17 +470,19 @@ export function SuggestionForm({
               />
               {ikeaLabel.trim() && (
                 <p className="flex items-center gap-1.5 text-sm font-medium text-[#2B5BA8]">
-                  <span>✓</span><span>{ikeaLabel}</span>
+                  <span>✓</span>
+                  <span>{ikeaLabel}</span>
                 </p>
               )}
             </div>
           )}
-
         </section>
 
         {/* Quantité */}
         <section>
-          <h2 className="mb-2 text-sm font-semibold text-[#1A1A1A]">Quantité</h2>
+          <h2 className="mb-2 text-sm font-semibold text-[#1A1A1A]">
+            Quantité
+          </h2>
           <input
             type="number"
             min="1"
@@ -446,7 +494,8 @@ export function SuggestionForm({
           />
           {quantityExceedsStock && selectedItemRemaining !== null && (
             <p className="mt-1 text-xs text-[#8B2332]">
-              Quantité indisponible — il reste {selectedItemRemaining} exemplaire{selectedItemRemaining > 1 ? "s" : ""}
+              Quantité indisponible — il reste {selectedItemRemaining}{" "}
+              exemplaire{selectedItemRemaining > 1 ? "s" : ""}
             </p>
           )}
         </section>
@@ -473,7 +522,7 @@ export function SuggestionForm({
   }
 
   // ── Étape 3 ───────────────────────────────────────────────────────────────
-  const articleLabel = supplier ? (ikeaLabel || ikeaUrl) : selectedItem?.name;
+  const articleLabel = supplier ? ikeaLabel || ikeaUrl : selectedItem?.name;
 
   return (
     <div className="flex flex-col gap-6 p-4">
@@ -481,10 +530,10 @@ export function SuggestionForm({
         <h2 className="mb-3 text-lg font-semibold">Résumé</h2>
         <dl className="divide-y divide-[#C8C8C8] rounded-xl border border-[#C8C8C8] text-sm">
           {[
-            { label: "Pièce",     value: selectedRoom?.name },
+            { label: "Pièce", value: selectedRoom?.name },
             { label: "Catégorie", value: selectedCategory?.name },
-            { label: "Article",   value: articleLabel },
-            { label: "Quantité",  value: String(quantityInt) },
+            { label: "Article", value: articleLabel },
+            { label: "Quantité", value: String(quantityInt) },
           ].map(({ label, value }) => (
             <div key={label} className="flex gap-4 px-4 py-2.5">
               <dt className="w-24 font-medium text-gray-500">{label}</dt>
@@ -495,8 +544,12 @@ export function SuggestionForm({
       </section>
 
       <section>
-        <label htmlFor="comment" className="mb-2 block text-sm font-semibold text-[#1A1A1A]">
-          Commentaire <span className="font-normal text-gray-400">(optionnel)</span>
+        <label
+          htmlFor="comment"
+          className="mb-2 block text-sm font-semibold text-[#1A1A1A]"
+        >
+          Commentaire{" "}
+          <span className="font-normal text-gray-400">(optionnel)</span>
         </label>
         <textarea
           id="comment"
