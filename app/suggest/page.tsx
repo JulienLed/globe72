@@ -1,4 +1,7 @@
-export const dynamic = "force-dynamic";
+// Revalidate every 30 s instead of force-dynamic: avoids blocking every
+// navigation on 4 Neon round-trips.  30-second staleness is acceptable for a
+// 5-user internal app; the submit API route already validates stock server-side.
+export const revalidate = 30;
 
 import { prisma } from "@/lib/prisma";
 import { SuggestClient } from "./SuggestClient";

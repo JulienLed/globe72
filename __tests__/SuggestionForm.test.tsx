@@ -241,6 +241,50 @@ describe("SuggestionForm — Étape 3 : commentaire & validation", () => {
   });
 });
 
+// ── Désélection ───────────────────────────────────────────────────────────────
+
+describe("SuggestionForm — Désélection", () => {
+  it("re-cliquer un item inventaire déjà sélectionné le désélectionne", async () => {
+    const user = userEvent.setup();
+    render(<SuggestionForm {...defaultProps} />);
+    await goToStep2(user);
+    // Premier clic → sélectionné
+    await user.click(screen.getByText("Grand bureau (3 parties)"));
+    expect(screen.getByRole("button", { name: /suivant/i })).toBeEnabled();
+    // Deuxième clic → désélectionné
+    await user.click(screen.getByText("Grand bureau (3 parties)"));
+    expect(screen.getByRole("button", { name: /suivant/i })).toBeDisabled();
+  });
+
+  it("re-cliquer le bouton IKEA actif le désélectionne et vide les champs", async () => {
+    const user = userEvent.setup();
+    render(<SuggestionForm {...defaultProps} />);
+    await goToStep2(user);
+    // Sélectionner IKEA + saisir URL
+    await user.click(screen.getByText(/choisir sur ikea/i));
+    await user.type(screen.getByPlaceholderText(/url/i), "https://www.ikea.com/fr/fr/p/desk");
+    expect(screen.getByRole("button", { name: /suivant/i })).toBeEnabled();
+    // Re-cliquer IKEA → désélection
+    await user.click(screen.getByText(/choisir sur ikea/i));
+    expect(screen.getByRole("button", { name: /suivant/i })).toBeDisabled();
+    // Les champs URL/label ne doivent plus être visibles
+    expect(screen.queryByPlaceholderText(/url/i)).not.toBeInTheDocument();
+  });
+
+  it("re-cliquer le bouton Bruneau actif le désélectionne", async () => {
+    const user = userEvent.setup();
+    render(<SuggestionForm {...defaultProps} />);
+    await goToStep2(user);
+    await user.click(screen.getByText(/choisir sur bruneau/i));
+    await user.type(screen.getByPlaceholderText(/url/i), "https://www.bruneau.be/p/123");
+    expect(screen.getByRole("button", { name: /suivant/i })).toBeEnabled();
+    // Re-cliquer Bruneau → désélection
+    await user.click(screen.getByText(/choisir sur bruneau/i));
+    expect(screen.getByRole("button", { name: /suivant/i })).toBeDisabled();
+    expect(screen.queryByPlaceholderText(/url/i)).not.toBeInTheDocument();
+  });
+});
+
 // ── Navigation : bouton Retour ────────────────────────────────────────────────
 
 describe("SuggestionForm — Navigation : bouton Retour", () => {

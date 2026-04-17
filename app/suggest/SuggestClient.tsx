@@ -13,16 +13,17 @@ interface Props {
 
 export function SuggestClient({ rooms, categories, inventoryItems, stockTaken }: Props) {
   const router = useRouter();
-  const [username, setUsername] = useState<string | null>(null);
+
+  // Read localStorage synchronously on first client render (lazy initializer)
+  // so the form is visible immediately — no useEffect tick producing a blank flash.
+  const [username] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("username");
+  });
 
   useEffect(() => {
-    const stored = localStorage.getItem("username");
-    if (!stored) {
-      router.replace("/");
-    } else {
-      setUsername(stored);
-    }
-  }, [router]);
+    if (!username) router.replace("/");
+  }, [username, router]);
 
   if (!username) return null;
 

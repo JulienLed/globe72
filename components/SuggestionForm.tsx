@@ -95,18 +95,31 @@ export function SuggestionForm({
     item.quantity - (stockTaken[item.id] ?? 0);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
+
+  // Toggle: clicking an already-selected inventory card deselects it.
   const handleSelectItem = (id: number) => {
-    setInventoryItemId(id);
-    setSupplier(null);
-    setIkeaUrl("");
-    setIkeaLabel("");
+    if (inventoryItemId === id) {
+      setInventoryItemId(null);
+    } else {
+      setInventoryItemId(id);
+      setSupplier(null);
+      setIkeaUrl("");
+      setIkeaLabel("");
+    }
   };
 
+  // Toggle: clicking the active supplier card deselects it and clears its inputs.
   const handleClickSupplier = (s: "ikea" | "bruneau") => {
-    setInventoryItemId(null);
-    setSupplier(s);
-    setIkeaUrl("");
-    setIkeaLabel("");
+    if (supplier === s) {
+      setSupplier(null);
+      setIkeaUrl("");
+      setIkeaLabel("");
+    } else {
+      setInventoryItemId(null);
+      setSupplier(s);
+      setIkeaUrl("");
+      setIkeaLabel("");
+    }
   };
 
   const handleSubmit = async () => {
@@ -204,10 +217,10 @@ export function SuggestionForm({
     return (
       <div className="flex flex-col gap-6 p-4">
 
-        {/* Grille de cards inventaire */}
+        {/* ── Section inventaire ── */}
         <section>
           <h2 className="mb-3 text-lg font-semibold">
-            Inventaire disponible
+            Choisir dans l&apos;inventaire existant
             {selectedCategory && (
               <span className="ml-2 text-sm font-normal text-gray-400">
                 — {selectedCategory.name}
@@ -290,124 +303,132 @@ export function SuggestionForm({
           )}
         </section>
 
-        {/* Fournisseurs en ligne — IKEA et Bruneau.be */}
-        <section className="flex flex-col gap-3">
+        {/* ── Séparateur ── */}
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-[#C8C8C8]" />
+          <p className="text-center text-sm text-gray-500">
+            Vous ne trouvez pas ce qu&apos;il vous faut ?<br />Commandez en ligne :
+          </p>
+          <div className="h-px flex-1 bg-[#C8C8C8]" />
+        </div>
 
-          {/* IKEA */}
-          <div>
+        {/* ── Section fournisseurs — cards côte à côte ── */}
+        <section className="flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-3">
+
+            {/* IKEA */}
             <button
               type="button"
               onClick={() => handleClickSupplier("ikea")}
               aria-pressed={supplier === "ikea"}
-              className={`w-full rounded-xl border-2 px-5 py-4 text-left transition-colors ${
+              className={`rounded-xl border-2 px-4 py-4 text-left transition-colors ${
                 supplier === "ikea"
                   ? "border-[#5B9BD5] bg-[#EEF4FC]"
                   : "border-dashed border-[#C8C8C8] hover:border-[#5B9BD5] hover:bg-[#EEF4FC]"
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col items-start gap-1">
                 <span className="text-2xl">🛒</span>
-                <div>
-                  <p className="font-semibold text-[#1A1A1A]">Choisir sur IKEA</p>
-                  <p className="text-xs text-gray-500">Mobilier et accessoires</p>
-                </div>
+                <p className="font-semibold text-[#1A1A1A]">Choisir sur IKEA</p>
+                <p className="text-xs text-gray-500">Mobilier et accessoires</p>
                 {supplier === "ikea" && ikeaLabel && (
-                  <span className="ml-auto text-xs font-medium text-[#2B5BA8]">✓ {ikeaLabel}</span>
+                  <span className="mt-1 text-xs font-medium text-[#2B5BA8]">✓ {ikeaLabel}</span>
                 )}
               </div>
             </button>
-            {supplier === "ikea" && (
-              <div className="mt-3 flex flex-col gap-3 rounded-xl border border-[#C8C8C8] bg-[#EEF4FC] p-4">
-                <p className="text-xs text-gray-500">
-                  Navigue sur IKEA, copie l&apos;URL du produit et colle-la ci-dessous.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => window.open(IKEA_URL, "_blank", "noopener,noreferrer")}
-                  className="w-fit rounded-lg border border-[#5B9BD5] bg-white px-3 py-1.5 text-xs font-medium text-[#2B5BA8] hover:bg-[#EEF4FC]"
-                >
-                  🔗 Ouvrir IKEA dans un nouvel onglet
-                </button>
-                <input
-                  type="url"
-                  placeholder="URL IKEA (ex: https://www.ikea.com/be/fr/p/...)"
-                  value={ikeaUrl}
-                  onChange={(e) => setIkeaUrl(e.target.value)}
-                  className="rounded-lg border border-[#C8C8C8] px-3 py-2 text-sm focus:border-[#2B5BA8] focus:outline-none"
-                />
-                <input
-                  type="text"
-                  placeholder="Nom de l'article"
-                  value={ikeaLabel}
-                  onChange={(e) => setIkeaLabel(e.target.value)}
-                  className="rounded-lg border border-[#C8C8C8] px-3 py-2 text-sm focus:border-[#2B5BA8] focus:outline-none"
-                />
-                {ikeaLabel.trim() && (
-                  <p className="flex items-center gap-1.5 text-sm font-medium text-[#2B5BA8]">
-                    <span>✓</span><span>{ikeaLabel}</span>
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
 
-          {/* Bruneau.be */}
-          <div>
+            {/* Bruneau.be */}
             <button
               type="button"
               onClick={() => handleClickSupplier("bruneau")}
               aria-pressed={supplier === "bruneau"}
-              className={`w-full rounded-xl border-2 px-5 py-4 text-left transition-colors ${
+              className={`rounded-xl border-2 px-4 py-4 text-left transition-colors ${
                 supplier === "bruneau"
                   ? "border-[#2B5BA8] bg-[#EEF4FC]"
                   : "border-dashed border-[#C8C8C8] hover:border-[#2B5BA8] hover:bg-[#EEF4FC]"
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col items-start gap-1">
                 <span className="text-2xl">🏪</span>
-                <div>
-                  <p className="font-semibold text-[#1A1A1A]">Choisir sur Bruneau.be</p>
-                  <p className="text-xs text-gray-500">Fournitures de bureau et mobilier</p>
-                </div>
+                <p className="font-semibold text-[#1A1A1A]">Choisir sur Bruneau.be</p>
+                <p className="text-xs text-gray-500">Fournitures de bureau et mobilier</p>
                 {supplier === "bruneau" && ikeaLabel && (
-                  <span className="ml-auto text-xs font-medium text-[#2B5BA8]">✓ {ikeaLabel}</span>
+                  <span className="mt-1 text-xs font-medium text-[#2B5BA8]">✓ {ikeaLabel}</span>
                 )}
               </div>
             </button>
-            {supplier === "bruneau" && (
-              <div className="mt-3 flex flex-col gap-3 rounded-xl border border-[#C8C8C8] bg-[#EEF4FC] p-4">
-                <p className="text-xs text-gray-500">
-                  Navigue sur Bruneau.be, copie l&apos;URL du produit et colle-la ci-dessous.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => window.open(BRUNEAU_URL, "_blank", "noopener,noreferrer")}
-                  className="w-fit rounded-lg border border-[#2B5BA8] bg-white px-3 py-1.5 text-xs font-medium text-[#2B5BA8] hover:bg-[#EEF4FC]"
-                >
-                  🔗 Ouvrir Bruneau.be dans un nouvel onglet
-                </button>
-                <input
-                  type="url"
-                  placeholder="URL Bruneau.be (ex: https://www.bruneau.be/...)"
-                  value={ikeaUrl}
-                  onChange={(e) => setIkeaUrl(e.target.value)}
-                  className="rounded-lg border border-[#C8C8C8] px-3 py-2 text-sm focus:border-[#2B5BA8] focus:outline-none"
-                />
-                <input
-                  type="text"
-                  placeholder="Nom de l'article"
-                  value={ikeaLabel}
-                  onChange={(e) => setIkeaLabel(e.target.value)}
-                  className="rounded-lg border border-[#C8C8C8] px-3 py-2 text-sm focus:border-[#2B5BA8] focus:outline-none"
-                />
-                {ikeaLabel.trim() && (
-                  <p className="flex items-center gap-1.5 text-sm font-medium text-[#2B5BA8]">
-                    <span>✓</span><span>{ikeaLabel}</span>
-                  </p>
-                )}
-              </div>
-            )}
+
           </div>
+
+          {/* Formulaire étendu IKEA — pleine largeur sous les deux cards */}
+          {supplier === "ikea" && (
+            <div className="flex flex-col gap-3 rounded-xl border border-[#C8C8C8] bg-[#EEF4FC] p-4">
+              <p className="text-xs text-gray-500">
+                Navigue sur IKEA, copie l&apos;URL du produit et colle-la ci-dessous.
+              </p>
+              <button
+                type="button"
+                onClick={() => window.open(IKEA_URL, "_blank", "noopener,noreferrer")}
+                className="w-fit rounded-lg border border-[#5B9BD5] bg-white px-3 py-1.5 text-xs font-medium text-[#2B5BA8] hover:bg-[#EEF4FC]"
+              >
+                🔗 Ouvrir IKEA dans un nouvel onglet
+              </button>
+              <input
+                type="url"
+                placeholder="URL IKEA (ex: https://www.ikea.com/be/fr/p/...)"
+                value={ikeaUrl}
+                onChange={(e) => setIkeaUrl(e.target.value)}
+                className="rounded-lg border border-[#C8C8C8] px-3 py-2 text-sm focus:border-[#2B5BA8] focus:outline-none"
+              />
+              <input
+                type="text"
+                placeholder="Nom de l'article"
+                value={ikeaLabel}
+                onChange={(e) => setIkeaLabel(e.target.value)}
+                className="rounded-lg border border-[#C8C8C8] px-3 py-2 text-sm focus:border-[#2B5BA8] focus:outline-none"
+              />
+              {ikeaLabel.trim() && (
+                <p className="flex items-center gap-1.5 text-sm font-medium text-[#2B5BA8]">
+                  <span>✓</span><span>{ikeaLabel}</span>
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Formulaire étendu Bruneau.be — pleine largeur sous les deux cards */}
+          {supplier === "bruneau" && (
+            <div className="flex flex-col gap-3 rounded-xl border border-[#C8C8C8] bg-[#EEF4FC] p-4">
+              <p className="text-xs text-gray-500">
+                Navigue sur Bruneau.be, copie l&apos;URL du produit et colle-la ci-dessous.
+              </p>
+              <button
+                type="button"
+                onClick={() => window.open(BRUNEAU_URL, "_blank", "noopener,noreferrer")}
+                className="w-fit rounded-lg border border-[#2B5BA8] bg-white px-3 py-1.5 text-xs font-medium text-[#2B5BA8] hover:bg-[#EEF4FC]"
+              >
+                🔗 Ouvrir Bruneau.be dans un nouvel onglet
+              </button>
+              <input
+                type="url"
+                placeholder="URL Bruneau.be (ex: https://www.bruneau.be/...)"
+                value={ikeaUrl}
+                onChange={(e) => setIkeaUrl(e.target.value)}
+                className="rounded-lg border border-[#C8C8C8] px-3 py-2 text-sm focus:border-[#2B5BA8] focus:outline-none"
+              />
+              <input
+                type="text"
+                placeholder="Nom de l'article"
+                value={ikeaLabel}
+                onChange={(e) => setIkeaLabel(e.target.value)}
+                className="rounded-lg border border-[#C8C8C8] px-3 py-2 text-sm focus:border-[#2B5BA8] focus:outline-none"
+              />
+              {ikeaLabel.trim() && (
+                <p className="flex items-center gap-1.5 text-sm font-medium text-[#2B5BA8]">
+                  <span>✓</span><span>{ikeaLabel}</span>
+                </p>
+              )}
+            </div>
+          )}
 
         </section>
 

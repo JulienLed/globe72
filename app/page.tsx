@@ -1,11 +1,18 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 const USERS = ["Amy", "Simon", "Rebecca", "Nathalie", "Julien"];
 
 export default function HomePage() {
   const router = useRouter();
+
+  // Pre-warm the /suggest RSC payload while the user reads the home page,
+  // so the click-to-load delay is near-zero on a warm cache.
+  useEffect(() => {
+    router.prefetch("/suggest");
+  }, [router]);
 
   function handleSelect(username: string) {
     localStorage.setItem("username", username);
