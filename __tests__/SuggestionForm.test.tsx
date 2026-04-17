@@ -305,48 +305,6 @@ describe("SuggestionForm — Navigation : bouton Retour", () => {
   });
 });
 
-// ── Team indicators (suggestedBy badges) ─────────────────────────────────────
-
-describe("SuggestionForm — Team indicators", () => {
-  it("affiche les initiales des autres utilisateurs ayant demandé l'article", async () => {
-    const user = userEvent.setup();
-    render(
-      <SuggestionForm
-        {...defaultProps}
-        suggestedBy={{ 10: ["Simon", "Rebecca"] }}
-      />,
-    );
-    await goToStep2(user);
-
-    // Simon → "S", Rebecca → "R" on item id=10 (Grand bureau)
-    expect(screen.getByTitle("Simon")).toBeInTheDocument();
-    expect(screen.getByTitle("Simon")).toHaveTextContent("S");
-    expect(screen.getByTitle("Rebecca")).toBeInTheDocument();
-    expect(screen.getByTitle("Rebecca")).toHaveTextContent("R");
-    // Item 11 (Fauteuils) has no entries — no badges
-    expect(screen.queryByTitle("Amy")).not.toBeInTheDocument();
-  });
-
-  it("affiche le badge bordeaux avec ✓ pour l'utilisateur courant", async () => {
-    const user = userEvent.setup();
-    render(
-      <SuggestionForm
-        {...defaultProps}
-        suggestedBy={{ 10: ["Amy", "Simon"] }}
-      />,
-    );
-    await goToStep2(user);
-
-    const selfBadge = screen.getByTitle("Amy");
-    expect(selfBadge).toHaveTextContent("✓");
-    expect(selfBadge).toHaveClass("bg-[#8B2332]");
-
-    const otherBadge = screen.getByTitle("Simon");
-    expect(otherBadge).toHaveTextContent("S");
-    expect(otherBadge).toHaveClass("bg-[#2B5BA8]");
-  });
-});
-
 // ── Happy path complet ────────────────────────────────────────────────────────
 
 describe("SuggestionForm — Happy path complet", () => {

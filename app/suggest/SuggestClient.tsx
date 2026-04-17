@@ -9,10 +9,9 @@ interface Props {
   categories: { id: number; name: string; emoji: string }[];
   inventoryItems: { id: number; name: string; category: string; quantity: number; photoUrl: string | null; notes: string | null }[];
   stockTaken: Record<number, number>;
-  suggestedBy: Record<number, string[]>;
 }
 
-export function SuggestClient({ rooms, categories, inventoryItems, stockTaken, suggestedBy }: Props) {
+export function SuggestClient({ rooms, categories, inventoryItems, stockTaken }: Props) {
   const router = useRouter();
 
   // Read localStorage synchronously on first client render (lazy initializer)
@@ -37,7 +36,6 @@ export function SuggestClient({ rooms, categories, inventoryItems, stockTaken, s
         inventoryItems={inventoryItems}
         username={username}
         stockTaken={stockTaken}
-        suggestedBy={suggestedBy}
         onSuccess={() => router.push("/recap?success=1")}
       />
     </main>

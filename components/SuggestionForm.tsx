@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { TeamChoicesDrawer } from "./TeamChoicesDrawer";
 
 interface Room {
   id: number;
@@ -29,8 +30,6 @@ interface SuggestionFormProps {
   username: string;
   /** Total quantity already suggested per inventoryItemId (from all users). Defaults to {}. */
   stockTaken?: Record<number, number>;
-  /** Usernames who already requested each inventoryItemId (across all rooms/categories). Defaults to {}. */
-  suggestedBy?: Record<number, string[]>;
   /** Appelé après un submit réussi — typiquement router.push("/recap") */
   onSuccess?: () => void;
 }
@@ -66,7 +65,6 @@ export function SuggestionForm({
   inventoryItems,
   username,
   stockTaken = {},
-  suggestedBy = {},
   onSuccess,
 }: SuggestionFormProps) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -247,6 +245,14 @@ export function SuggestionForm({
   if (step === 2) {
     return (
       <div className="flex flex-col gap-6 p-4">
+        {roomId !== null && needCategoryId !== null && (
+          <TeamChoicesDrawer
+            roomId={roomId}
+            needCategoryId={needCategoryId}
+            roomName={selectedRoom?.name ?? ""}
+            categoryName={selectedCategory?.name ?? ""}
+          />
+        )}
         {/* ── Section inventaire ── */}
         <section>
           <h2 className="mb-3 text-lg font-semibold">
@@ -312,27 +318,6 @@ export function SuggestionForm({
                       <span className="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
                         {rem} restant{rem > 1 ? "s" : ""}
                       </span>
-                    )}
-
-                    {/* Team indicators — who already requested this item */}
-                    {suggestedBy[item.id]?.length > 0 && (
-                      <div className="mt-1.5 flex flex-wrap gap-1">
-                        {suggestedBy[item.id].map((u) => {
-                          const isSelf = u === username;
-                          return (
-                            <span
-                              key={u}
-                              title={u}
-                              aria-label={isSelf ? `${u} (vous)` : u}
-                              className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white ${
-                                isSelf ? "bg-[#8B2332]" : "bg-[#2B5BA8]"
-                              }`}
-                            >
-                              {isSelf ? "✓" : u[0].toUpperCase()}
-                            </span>
-                          );
-                        })}
-                      </div>
                     )}
 
                     {/* Bouton sélectionner — masqué si stock épuisé */}
