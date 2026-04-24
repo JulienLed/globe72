@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const USERS = ["Amy", "Simon", "Rebecca", "Nathalie", "Julien"];
 
@@ -58,6 +59,16 @@ export default function HomePage() {
           >
             Télécharger le rapport PDF
           </a>
+        </div>
+
+        {/* Lien inventaire */}
+        <div className="w-full border-t border-[#C8C8C8] pt-4 text-center">
+          <Link
+            href="/inventory/new"
+            className="text-xs text-gray-400 hover:text-[#2B5BA8] underline underline-offset-2 transition-colors"
+          >
+            Ajouter un objet à l&apos;inventaire
+          </Link>
         </div>
       </div>
     </main>
