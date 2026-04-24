@@ -48,3 +48,10 @@ model Suggestion {
   comment         String?
   createdAt       DateTime       @default(now())
 }
+
+model SignageIdea {
+  id          Int      @id @default(autoincrement())
+  text        String
+  suggestedBy String
+  createdAt   DateTime @default(now())
+}

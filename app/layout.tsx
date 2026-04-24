@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppHeader } from "@/components/AppHeader";
 import { VideoBackground } from "@/components/VideoBackground";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -33,6 +34,7 @@ export default function RootLayout({
         <VideoBackground />
         <AppHeader />
         <div className="flex-1">{children}</div>
+        <Toaster richColors position="top-center" />
       </body>
     </html>
   );

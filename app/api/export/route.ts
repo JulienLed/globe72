@@ -14,6 +14,8 @@ import { prisma } from "@/lib/prisma";
 import { detectConflicts } from "@/lib/detectConflicts";
 import type { SuggestionFull } from "@/lib/types";
 
+type SignageIdea = { id: number; text: string; suggestedBy: string; createdAt: Date };
+
 // ── Brand colors ──────────────────────────────────────────────────────────────
 const BLUE       = "#2B5BA8";
 const BORDEAUX   = "#8B2332";
@@ -40,6 +42,11 @@ const styles = StyleSheet.create({
   conflictText:      { color: BORDEAUX },
   comment:           { fontSize: 9, color: "#888", marginTop: 1 },
   urlLink:           { fontSize: 9, color: BLUE, marginTop: 2 },
+  signageHeading:    { fontSize: 14, fontFamily: "Helvetica-Bold", color: BORDEAUX, marginBottom: 8, paddingBottom: 4, borderBottom: "1pt solid " + LIGHT_GRAY, marginTop: 24 },
+  signageDesc:       { fontSize: 9, color: "#666", marginBottom: 10 },
+  signageRow:        { flexDirection: "row", marginBottom: 6, marginLeft: 8 },
+  signageBy:         { fontFamily: "Helvetica-Bold", width: 80 },
+  signageText:       { flex: 1, fontSize: 11 },
 });
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -60,7 +67,7 @@ const ce = React.createElement;
 
 // ── Construction du document PDF ──────────────────────────────────────────────
 
-function buildDocument(suggestions: SuggestionFull[], conflicts: Set<string>, logoPath: string) {
+function buildDocument(suggestions: SuggestionFull[], conflicts: Set<string>, signageIdeas: SignageIdea[], logoPath: string) {
   // Regroupement room → catégorie
   const rooms = new Map<
     number,
@@ -121,10 +128,26 @@ function buildDocument(suggestions: SuggestionFull[], conflicts: Set<string>, lo
     ),
   );
 
+  const signageSection = signageIdeas.length > 0
+    ? ce(View, { key: "signage" },
+        ce(Text, { style: styles.signageHeading }, "Signalétique"),
+        ce(Text, { style: styles.signageDesc },
+          "Comment rendre ce lieu visible et identifiable depuis l'extérieur pour les locataires ?"
+        ),
+        ...signageIdeas.map((idea) =>
+          ce(View, { key: idea.id, style: styles.signageRow },
+            ce(Text, { style: styles.signageBy }, idea.suggestedBy),
+            ce(Text, { style: styles.signageText }, idea.text),
+          )
+        ),
+      )
+    : null;
+
   return ce(Document, null,
     ce(Page, { size: "A4", style: styles.page },
       header,
       ...roomSections,
+      signageSection,
     ),
   );
 }
@@ -134,13 +157,16 @@ function buildDocument(suggestions: SuggestionFull[], conflicts: Set<string>, lo
 export async function GET() {
   const logoPath = path.join(process.cwd(), "public", "Logo ABC.png");
 
-  const suggestions = (await prisma.suggestion.findMany({
-    include: { room: true, needCategory: true, inventoryItem: true },
-    orderBy: { createdAt: "asc" },
-  })) as unknown as SuggestionFull[];
+  const [suggestions, signageIdeas] = await Promise.all([
+    prisma.suggestion.findMany({
+      include: { room: true, needCategory: true, inventoryItem: true },
+      orderBy: { createdAt: "asc" },
+    }),
+    prisma.signageIdea.findMany({ orderBy: { createdAt: "asc" } }),
+  ]);
 
-  const conflicts = detectConflicts(suggestions);
-  const doc = buildDocument(suggestions, conflicts, logoPath);
+  const conflicts = detectConflicts(suggestions as unknown as SuggestionFull[]);
+  const doc = buildDocument(suggestions as unknown as SuggestionFull[], conflicts, signageIdeas, logoPath);
   const buffer = await renderToBuffer(doc);
 
   return new Response(new Uint8Array(buffer), {
