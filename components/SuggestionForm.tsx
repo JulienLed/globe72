@@ -43,8 +43,17 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
   "Mobilier de travail": ["bureau", "fauteuil", "chaise", "table"],
   "Assise & accueil": ["chaise", "fauteuil", "canapé"],
   Rangement: ["armoire", "étagère", "tiroir", "meuble"],
-  Décoration: ["lampe", "plante", "miroir"],
+  Décoration: ["lampe", "plante", "miroir", "tableau"],
   Communication: ["imprimante", "plieuse", "plastifieuse", "trancheuse"],
+};
+
+// Catégories d'inventaire (champ item.category) associées à chaque catégorie de besoin.
+const CATEGORY_ITEM_CATEGORIES: Record<string, string[]> = {
+  "Mobilier de travail": ["Mobilier de bureau"],
+  "Assise & accueil": ["Mobilier de bureau"],
+  Rangement: ["Rangement & stockage"],
+  Décoration: ["Décoration"],
+  Communication: ["Matériel de bureau"],
 };
 
 function filterInventory(
@@ -52,10 +61,13 @@ function filterInventory(
   categoryName: string,
 ): InventoryItem[] {
   if (categoryName === "Autre") return items;
-  const keywords = CATEGORY_KEYWORDS[categoryName];
-  if (!keywords) return items;
-  return items.filter((item) =>
-    keywords.some((kw) => item.name.toLowerCase().includes(kw)),
+  const keywords = CATEGORY_KEYWORDS[categoryName] ?? [];
+  const itemCategories = CATEGORY_ITEM_CATEGORIES[categoryName] ?? [];
+  if (keywords.length === 0 && itemCategories.length === 0) return items;
+  return items.filter(
+    (item) =>
+      keywords.some((kw) => item.name.toLowerCase().includes(kw)) ||
+      itemCategories.includes(item.category),
   );
 }
 

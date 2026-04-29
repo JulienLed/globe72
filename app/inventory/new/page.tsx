@@ -10,7 +10,7 @@ const CATEGORIES = [
   "Vaisselle",
   "Matériel de bureau",
   "Informatique",
-  "Santé & hygiène",
+  "Décoration",
 ];
 
 const BLOB_PREFIX = "https://blob.vercel-storage";
@@ -85,11 +85,22 @@ export default function NewInventoryPage() {
                 className="w-full h-40 object-contain rounded-lg mb-2"
               />
             )}
-            <p><span className="font-semibold">Nom :</span> {successItem.name}</p>
-            <p><span className="font-semibold">Catégorie :</span> {successItem.category}</p>
-            <p><span className="font-semibold">Quantité :</span> {successItem.quantity}</p>
+            <p>
+              <span className="font-semibold">Nom :</span> {successItem.name}
+            </p>
+            <p>
+              <span className="font-semibold">Catégorie :</span>{" "}
+              {successItem.category}
+            </p>
+            <p>
+              <span className="font-semibold">Quantité :</span>{" "}
+              {successItem.quantity}
+            </p>
             {successItem.notes && (
-              <p><span className="font-semibold">Notes :</span> {successItem.notes}</p>
+              <p>
+                <span className="font-semibold">Notes :</span>{" "}
+                {successItem.notes}
+              </p>
             )}
           </div>
 
@@ -117,8 +128,12 @@ export default function NewInventoryPage() {
       {/* Form */}
       <div className="glass w-full max-w-md px-8 py-8 flex flex-col gap-6">
         <div>
-          <h1 className="text-xl font-bold text-[#1A1A1A]">Ajouter un objet à l&apos;inventaire</h1>
-          <p className="mt-1 text-sm text-gray-500">La photo sera stockée sur Vercel Blob.</p>
+          <h1 className="text-xl font-bold text-[#1A1A1A]">
+            Ajouter un objet à l&apos;inventaire
+          </h1>
+          <p className="mt-1 text-sm text-gray-500">
+            La photo sera stockée sur Vercel Blob.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -139,7 +154,10 @@ export default function NewInventoryPage() {
 
           {/* Quantité */}
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700" htmlFor="quantity">
+            <label
+              className="text-sm font-medium text-gray-700"
+              htmlFor="quantity"
+            >
               Quantité <span className="text-red-500">*</span>
             </label>
             <input
@@ -155,7 +173,10 @@ export default function NewInventoryPage() {
 
           {/* Catégorie */}
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700" htmlFor="category">
+            <label
+              className="text-sm font-medium text-gray-700"
+              htmlFor="category"
+            >
               Catégorie
             </label>
             <select
@@ -164,14 +185,19 @@ export default function NewInventoryPage() {
               className="rounded-lg border border-[#C8C8C8] px-3 py-2 text-sm outline-none focus:border-[#2B5BA8] bg-white"
             >
               {CATEGORIES.map((c) => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c}>
+                  {c}
+                </option>
               ))}
             </select>
           </div>
 
           {/* Notes */}
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700" htmlFor="notes">
+            <label
+              className="text-sm font-medium text-gray-700"
+              htmlFor="notes"
+            >
               Notes <span className="text-gray-400 text-xs">(optionnel)</span>
             </label>
             <textarea
@@ -185,7 +211,10 @@ export default function NewInventoryPage() {
 
           {/* Photo */}
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700" htmlFor="photo">
+            <label
+              className="text-sm font-medium text-gray-700"
+              htmlFor="photo"
+            >
               Photo <span className="text-red-500">*</span>
             </label>
             <input
@@ -199,7 +228,9 @@ export default function NewInventoryPage() {
           </div>
 
           {error && (
-            <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>
+            <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
+              {error}
+            </p>
           )}
 
           <button
@@ -212,7 +243,10 @@ export default function NewInventoryPage() {
         </form>
 
         <div className="text-center">
-          <Link href="/" className="text-sm text-gray-500 hover:text-[#2B5BA8] underline underline-offset-2">
+          <Link
+            href="/"
+            className="text-sm text-gray-500 hover:text-[#2B5BA8] underline underline-offset-2"
+          >
             Retour à l&apos;accueil
           </Link>
         </div>
@@ -221,7 +255,9 @@ export default function NewInventoryPage() {
       {/* Manually added items */}
       {manualItems.length > 0 && (
         <div className="glass w-full max-w-md px-8 py-6 flex flex-col gap-4">
-          <h2 className="text-base font-semibold text-[#1A1A1A]">Objets ajoutés manuellement</h2>
+          <h2 className="text-base font-semibold text-[#1A1A1A]">
+            Objets ajoutés manuellement
+          </h2>
           <ul className="flex flex-col gap-3">
             {manualItems.map((item) => (
               <li
@@ -236,7 +272,9 @@ export default function NewInventoryPage() {
                   />
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#1A1A1A] truncate">{item.name}</p>
+                  <p className="text-sm font-medium text-[#1A1A1A] truncate">
+                    {item.name}
+                  </p>
                   <p className="text-xs text-gray-500">
                     {item.category} · qté {item.quantity}
                   </p>
