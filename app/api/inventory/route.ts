@@ -25,15 +25,24 @@ export async function POST(req: Request) {
 
   let photoUrl: string | null = null;
   if (photo && photo.size > 0) {
-    const blob = await put(photo.name, photo, { access: "public" });
-    photoUrl = blob.url;
+    try {
+      const blob = await put(photo.name, photo, { access: "public" });
+      photoUrl = blob.url;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      return NextResponse.json({ error: `Blob upload failed: ${msg}` }, { status: 500 });
+    }
   }
 
-  const item = await prisma.inventoryItem.create({
-    data: { name, quantity, category, notes, photoUrl },
-  });
-
-  return NextResponse.json(item, { status: 201 });
+  try {
+    const item = await prisma.inventoryItem.create({
+      data: { name, quantity, category, notes, photoUrl },
+    });
+    return NextResponse.json(item, { status: 201 });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({ error: `DB error: ${msg}` }, { status: 500 });
+  }
 }
 
 export async function GET() {
